@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIMER & STOPWATCH</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background: #ff0000;
+            color: #000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            border-bottom: 8px solid #000;
+            padding: 20px;
+            background: #ffff00;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            text-align: center;
+        }
+
+        .nav {
+            display: flex;
+            border-bottom: 8px solid #000;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            border: none;
+            background: #fff;
+            cursor: pointer;
+            border-right: 8px solid #000;
+            font-family: inherit;
+        }
+
+        .nav-btn:last-child {
+            border-right: none;
+        }
+
+        .nav-btn.active {
+            background: #000;
+            color: #fff;
+        }
+
+        .nav-btn:hover {
+            background: #00ff00;
+            color: #000;
+        }
+
+        .content {
+            flex: 1;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .section {
+            display: none;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .display {
+            font-size: 6rem;
+            font-weight: bold;
+            text-align: center;
+            border: 8px solid #000;
+            padding: 40px;
+            background: #fff;
+            margin-bottom: 40px;
+            letter-spacing: 10px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 20px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            border: 6px solid #000;
+            background: #fff;
+            cursor: pointer;
+            font-family: inherit;
+            box-shadow: 8px 8px 0 #000;
+            transition: all 0.1s;
+        }
+
+        .btn:hover {
+            background: #00ff00;
+            transform: translate(-4px, -4px);
+            box-shadow: 12px 12px 0 #000;
+        }
+
+        .btn:active {
+            transform: translate(4px, 4px);
+            box-shadow: 4px 4px 0 #000;
+        }
+
+        .btn.red { background: #ff0000; color: #fff; }
+        .btn.red:hover { background: #cc0000; }
+
+        .btn.yellow { background: #ffff00; }
+        .btn.yellow:hover { background: #cccc00; }
+
+        .btn.blue { background: #0000ff; color: #fff; }
+        .btn.blue:hover { background: #0000cc; }
+
+        .input-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .input-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .input-box label {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            background: #000;
+            color: #fff;
+            padding: 5px 15px;
+        }
+
+        .input-box input {
+            width: 120px;
+            padding: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            border: 6px solid #000;
+            font-family: inherit;
+        }
+
+        .laps {
+            margin-top: 40px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 6px solid #000;
+            background: #fff;
+        }
+
+        .lap-item {
+            padding: 15px 20px;
+            border-bottom: 4px solid #000;
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .lap-item:nth-child(odd) {
+            background: #ffff00;
+        }
+
+        .lap-item:last-child {
+            border-bottom: none;
+        }
+
+        .footer {
+            border-top: 8px solid #000;
+            padding: 20px;
+            background: #000;
+            color: #fff;
+            text-align: center;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 { font-size: 2rem; }
+            .display { font-size: 3rem; padding: 20px; }
+            .btn { padding: 15px 25px; font-size: 1.2rem; }
+            .nav-btn { padding: 15px; font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⏱️ TIMER & STOPWATCH</h1>
+    </div>
+
+    <div class="nav">
+        <button class="nav-btn active" onclick="showSection('stopwatch')">STOPWATCH</button>
+        <button class="nav-btn" onclick="showSection('timer')">TIMER</button>
+    </div>
+
+    <div class="content">
+        <!-- STOPWATCH SECTION -->
+        <div id="stopwatch" class="section active">
+            <div class="display" id="stopwatch-display">00:00:00</div>
+            <div class="controls">
+                <button class="btn green" onclick="startStopwatch()">START</button>
+                <button class="btn yellow" onclick="pauseStopwatch()">PAUSE</button>
+                <button class="btn red" onclick="resetStopwatch()">RESET</button>
+                <button class="btn blue" onclick="lapStopwatch()">LAP</button>
+            </div>
+            <div class="laps" id="laps"></div>
+        </div>
+
+        <!-- TIMER SECTION -->
+        <div id="timer" class="section">
+            <div class="input-group">
+                <div class="input-box">
+                    <label>HOURS</label>
+                    <input type="number" id="hours" min="0" max="99" value="0">
+                </div>
+                <div class="input-box">
+                    <label>MINUTES</label>
+                    <input type="number" id="minutes" min="0" max="59" value="5">
+                </div>
+                <div class="input-box">
+                    <label>SECONDS</label>
+                    <input type="number" id="seconds" min="0" max="59" value="0">
+                </div>
+            </div>
+            <div class="display" id="timer-display">00:05:00</div>
+            <div class="controls">
+                <button class="btn green" onclick="startTimer()">START</button>
+                <button class="btn yellow" onclick="pauseTimer()">PAUSE</button>
+                <button class="btn red" onclick="resetTimer()">RESET</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        BRUTALIST TIMER & STOPWATCH — BUILT WITH RAW HTML/CSS/JS
+    </div>
+
+    <script>
+        // Navigation
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(section).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Format time
+        function formatTime(totalSeconds) {
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = totalSeconds % 60;
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        // STOPWATCH
+        let stopwatchInterval = null;
+        let stopwatchSeconds = 0;
+        let lapCount = 0;
+
+        function startStopwatch() {
+            if (!stopwatchInterval) {
+                stopwatchInterval = setInterval(() => {
+                    stopwatchSeconds++;
+                    document.getElementById('stopwatch-display').textContent = formatTime(stopwatchSeconds);
+                }, 1000);
+            }
+        }
+
+        function pauseStopwatch() {
+            clearInterval(stopwatchInterval);
+            stopwatchInterval = null;
+        }
+
+        function resetStopwatch() {
+            pauseStopwatch();
+            stopwatchSeconds = 0;
+            lapCount = 0;
+            document.getElementById('stopwatch-display').textContent = '00:00:00';
+            document.getElementById('laps').innerHTML = '';
+        }
+
+        function lapStopwatch() {
+            if (stopwatchSeconds > 0) {
+                lapCount++;
+                const lapDiv = document.createElement('div');
+                lapDiv.className = 'lap-item';
+                lapDiv.innerHTML = `<span>LAP ${lapCount}</span><span>${formatTime(stopwatchSeconds)}</span>`;
+                document.getElementById('laps').prepend(lapDiv);
+            }
+        }
+
+        // TIMER
+        let timerInterval = null;
+        let timerSeconds = 300; // default 5 minutes
+
+        function updateTimerDisplay() {
+            const h = parseInt(document.getElementById('hours').value) || 0;
+            const m = parseInt(document.getElementById('minutes').value) || 0;
+            const s = parseInt(document.getElementById('seconds').value) || 0;
+            timerSeconds = h * 3600 + m * 60 + s;
+            document.getElementById('timer-display').textContent = formatTime(timerSeconds);
+        }
+
+        document.getElementById('hours').addEventListener('input', updateTimerDisplay);
+        document.getElementById('minutes').addEventListener('input', updateTimerDisplay);
+        document.getElementById('seconds').addEventListener('input', updateTimerDisplay);
+
+        function startTimer() {
+            if (!timerInterval && timerSeconds > 0) {
+                document.getElementById('hours').disabled = true;
+                document.getElementById('minutes').disabled = true;
+                document.getElementById('seconds').disabled = true;
+                
+                timerInterval = setInterval(() => {
+                    if (timerSeconds > 0) {
+                        timerSeconds--;
+                        document.getElementById('timer-display').textContent = formatTime(timerSeconds);
+                    } else {
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                        alert('⏰ TIME IS UP!');
+                        document.getElementById('hours').disabled = false;
+                        document.getElementById('minutes').disabled = false;
+                        document.getElementById('seconds').disabled = false;
+                    }
+                }, 1000);
+            }
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            document.getElementById('hours').disabled = false;
+            document.getElementById('minutes').disabled = false;
+            document.getElementById('seconds').disabled = false;
+            updateTimerDisplay();
+        }
+
+        // Initialize timer display
+        updateTimerDisplay();
+    </script>
+</body>
+</html>
